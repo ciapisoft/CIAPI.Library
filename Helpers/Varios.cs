@@ -8,9 +8,144 @@ using CIAPI.Models;
 
 namespace CIAPI.Helpers
 {
-    public class Varios
+    public class PeriodoStruct
     {
+        public int Anio { get; set; }
+        public int Mes { get; set; }
 
+        public string Periodo
+        {
+
+            get
+            {
+                return String.Format("{0}/{1}", Anio.ToString("0000"), Mes.ToString("00"));
+            }
+            set
+            {
+                if (value == null)
+                {
+                    Anio = 0;
+                    Mes = 0;
+                }
+                else
+                    if (Varios.ValidPeriodo(value))
+                {
+                    Anio = int.Parse(value.Substring(0, 4));
+                    Mes = int.Parse(value.Substring(5, 2));
+                }
+
+            }
+        }
+
+        public DateTime Fecha1erdia
+        {
+            get
+            {
+                return new DateTime(Anio, Mes, 1);
+            }
+        }
+        public DateTime UltimodiaMes
+        {
+            get
+            {
+                PeriodoStruct periodosig = new PeriodoStruct(Varios.SumaPeriodo(this.Periodo, 1));
+                return new DateTime(periodosig.Anio, periodosig.Mes, 1).AddDays(-1);
+            }
+        }
+        public DateTime UltimodiaMesSiguiente
+        {
+            get
+            {
+                PeriodoStruct periodosig = new PeriodoStruct(Varios.SumaPeriodo(this.Periodo, 2));
+                return new DateTime(periodosig.Anio, periodosig.Mes, 1).AddDays(-1);
+            }
+        }
+        public DateTime UltimodiaMesAnterior
+        {
+            get
+            {
+                return new DateTime(Anio, Mes, 1).AddDays(-1);
+            }
+        }
+        public PeriodoStruct(string periodo)
+        {
+            this.Periodo = periodo;
+        }
+        public PeriodoStruct(int anio, int mes)
+        {
+            this.Anio = anio;
+            this.Mes = mes;
+        }
+    }
+
+    public static class Varios
+    {
+        public static bool IsNumeric(this string s)
+        {
+            float output;
+            return float.TryParse(s, out output);
+        }
+        public static bool ValidPeriodo(string periodo)
+        {
+            var ret = false;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(periodo))
+                {
+                    var parts = periodo.Split("/");
+                    if (parts.Count() == 2)
+                    {
+                        if (IsNumeric(parts[0]) && IsNumeric(parts[1]))
+                        {
+                            if (int.Parse(parts[0]) >= 1900 && int.Parse(parts[0]) <= 2199)
+                            {
+                                ret = (int.Parse(parts[1]) >= 1 && int.Parse(parts[1]) <= 12);
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                ret = false;
+            }
+            return ret;
+
+        }
+        public static string PeriodoActual()
+        {
+            return String.Format("{0}/{1}", DateTime.Now.Year.ToString("0000"), DateTime.Now.Month.ToString("00"));
+        }
+        public static string AnioMesToPeriodo(int Anio, int Mes)
+        {
+            return String.Format("{0}/{1}", Anio.ToString("0000"), Mes.ToString("00"));
+        }
+
+
+        public static string SumaPeriodo(string periodo, int meses = 1)
+        {
+            if (!string.IsNullOrEmpty(periodo))
+            {
+                var anio = int.Parse(periodo.Substring(0, 4));
+                var mes = int.Parse(periodo.Substring(5, 2));
+                mes = mes + meses;
+                while (mes > 12)
+                {
+                    mes -= 12;
+                    anio++;
+                }
+                while (mes < 0)
+                {
+                    mes += 12;
+                    anio--;
+                }
+                return anio.ToString() + "/" + mes.ToString("00");
+            }
+            else
+            {
+                return "0000/00";
+            }
+        }
         public static void ExtraerInfoPDF(List<string> vtexto, List<ParametroBusquedaPDF> parambusq)
         {
             for(var i=0;i<vtexto.Count; i++)
