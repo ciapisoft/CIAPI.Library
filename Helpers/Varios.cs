@@ -121,7 +121,21 @@ namespace CIAPI.Helpers
             return String.Format("{0}/{1}", Anio.ToString("0000"), Mes.ToString("00"));
         }
 
+        /// <summary>
+        /// Obtiene la eddad en años
+        /// </summary>
+        public static int Edad(DateTime fechaNacimiento,DateTime? fechaHoy = null)
+        {
+            var fechaHoyConf = fechaHoy==null ? DateTime.Now : fechaHoy.GetValueOrDefault();
 
+            int edad = fechaHoyConf.Year - fechaNacimiento.Year;
+
+            if (fechaHoyConf < fechaNacimiento.AddYears(edad))
+                --edad;
+
+            return edad;
+
+        }
         public static string SumaPeriodo(string periodo, int meses = 1)
         {
             if (!string.IsNullOrEmpty(periodo))
@@ -178,6 +192,7 @@ namespace CIAPI.Helpers
                                         var textoresult = ValidarTipoDato(vtexto[i + 1], param.Tipo);
                                         if (!String.IsNullOrEmpty(textoresult))
                                         {
+                                            param.ValorNro++;
                                             param.Valor = textoresult;
                                             datoOk = true;
                                         }
@@ -190,6 +205,7 @@ namespace CIAPI.Helpers
                                                 textoresult = ValidarTipoDato(CerosIzq(vtexto[i + 1], 2) + "/" + CerosIzq(vtexto[i + 2], 2) + "/" + vtexto[i + 3], param.Tipo);
                                                 if (!String.IsNullOrEmpty(textoresult))
                                                 {
+                                                    param.ValorNro++;
                                                     param.Valor = textoresult;
                                                     datoOk = true;
                                                 }
@@ -223,6 +239,10 @@ namespace CIAPI.Helpers
 
                     //-------------------------
                     //PALABRAS CLAVES ENCONTRADAS
+                    //if(i==180 && param.Nombre=="TipoAutorizacionAFIP")
+                    //{
+                    //    var a = 1;
+                    //}
                     var pclaveOK = AnalisisPalabraClave(vtexto[i], param);
 
                     //var palabraClaveEncontrada = false;
@@ -306,11 +326,11 @@ namespace CIAPI.Helpers
 
                     Regex rgx = new Regex(regexv);
 
-                    //if (vtexto[i] == "102.628,00" && param.Nombre=="MontoTotal") Debugger.Break();
+                    //if (dato == "B-00003-00000300" && param.Nombre=="LetraPuntoyNumero") Debugger.Break();
 
                     regExEncontrada = rgx.IsMatch(dato);
 
-                    if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || !param.MantenerPrimerValor))
+                    if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || param.MantenerValorNro>param.ValorNro))
                     {
                         //if (param.Nombre == "PuntoVenta") Debugger.Break();
                         //if (vtexto[i] == "102.628,00") Debugger.Break();
@@ -319,11 +339,12 @@ namespace CIAPI.Helpers
                         {
                             regExEncontrada = (dato.Length >= param.DesdeLongFija && dato.Length <= param.HastaLongFija);
                         }
-                        if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || !param.MantenerPrimerValor))
+                        if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || param.MantenerValorNro > param.ValorNro))
                         {
-                            var textoresult = ValidarTipoDato(dato, param.Tipo);
+                            var textoresult = ValidarTipoDato(dato, param.Tipo); 
                             if (!String.IsNullOrEmpty(textoresult))
                             {
+                                param.ValorNro++;
                                 param.Valor = textoresult;
                                 ret = true;
                             }
@@ -349,9 +370,9 @@ namespace CIAPI.Helpers
                     }
                     else
                     {
-                        palabraClaveEncontrada = (palabraClave == dato.ToLower());
+                        palabraClaveEncontrada = (palabraClave.ToLower() == dato.ToLower());
                     }
-                    if (palabraClaveEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || !param.MantenerPrimerValor))
+                    if (palabraClaveEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || param.MantenerValorNro > param.ValorNro))
                     {
                         if (param.DesdeLongFija != 0)
                         {
@@ -363,7 +384,8 @@ namespace CIAPI.Helpers
                         {
                             var textoresult = ValidarTipoDato(dato, param.Tipo);
                             if (!String.IsNullOrEmpty(textoresult))
-                            { 
+                            {
+                                param.ValorNro++;
                                 param.Valor = textoresult;
                                 ret = true;
                             }
@@ -396,7 +418,7 @@ namespace CIAPI.Helpers
 
                         var auxFec = dato.Replace("/", "");
                         auxFec = auxFec.Replace("-", "");
-
+                        auxFec = auxFec.Replace(".", "");
                         if (auxFec.Length == 8)
                         {
                             var p1 = auxFec.Substring(0, 2);
@@ -497,6 +519,18 @@ namespace CIAPI.Helpers
                 ret = "0" + ret;
             }
             return ret;
+        }
+        /// <summary>
+        /// Compara 2 cuit con o sin guiones y devuelve true si son iguales
+        /// </summary>
+        /// <param name="CUITL1"></param>
+        /// <param name="CUITL2"></param>
+        /// <returns></returns>
+        public static bool CompararCUITLs(string CUITL1, string CUITL2)
+        {
+            var c1 = CUITL1.Replace("-", "").Trim();
+            var c2 = CUITL2.Replace("-", "").Trim();
+            return c1 == c2;
         }
     }
 }

@@ -38,18 +38,66 @@ namespace CIAPI.DataManagers
 
         }
 
-        public static DataTable GetTable(SqlConnection conn, string queryText)
+        public static DataSet GetDataSet(SqlConnection conn, string queryText)
         {
             SqlCommand command = new SqlCommand(queryText, conn);
             SqlDataAdapter adapter = new SqlDataAdapter();
-            DataSet dsTest = new DataSet();
+            DataSet ds = new DataSet();
 
-
+            
             adapter.SelectCommand = command;
-            _ = adapter.Fill(dsTest);
+            _ = adapter.Fill(ds);
 
 
-            return dsTest.Tables[0];
+            return ds;
+        }
+        public static int Execute(SqlConnection conn, string queryInsUpd)
+        {
+            SqlCommand command = new SqlCommand(queryInsUpd, conn);
+            SqlDataAdapter adapter = new SqlDataAdapter();
+
+
+            var ret = command.ExecuteNonQuery();
+
+
+            return ret;
+        }
+
+        public static int Execute(string queryInsUpd)
+        {
+            var conn = GetConnection();
+
+
+            var ret = Execute(conn, queryInsUpd);
+
+            conn.Dispose();
+
+            return ret;
+        }
+
+        public static DataSet GetDataSet(string queryText)
+        {
+
+            var conn = GetConnection();
+
+
+            var ds = GetDataSet(conn, queryText);
+
+            conn.Dispose();
+
+            return ds;
+        }
+        public static DataTable GetTable(SqlConnection conn, string queryText)
+        {
+
+            DataSet ds = GetDataSet(conn, queryText);
+
+
+
+
+
+
+            return ds.Tables[0];
         }
 
 
@@ -59,8 +107,11 @@ namespace CIAPI.DataManagers
 
             var conn = GetConnection();
 
+            var table = GetTable(conn, queryText);
 
-            return GetTable(conn, queryText);
+            conn.Dispose();
+
+            return table;
         }
 
 
@@ -74,38 +125,23 @@ namespace CIAPI.DataManagers
         {
 
             var conn = GetConnection();
-            return GetTableMapped<T>(conn,queryText);
-        }
-        public static DataSet GetDataSet(SqlConnection conn, string queryText)
-        {
-            SqlCommand command = new SqlCommand(queryText, conn);
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            DataSet dsTest = new DataSet();
+            var table = GetTableMapped<T>(conn,queryText);
 
+            conn.Dispose();
 
-            adapter.SelectCommand = command;
-            _ = adapter.Fill(dsTest);
+            return table;
 
-
-            return dsTest;
         }
 
-        public static DataSet GetDataSet(string queryText)
-        {
 
-            var conn = GetConnection();
-
-
-            return GetDataSet(conn, queryText);
-        }
 
 
 
         public static Int32 Execute(string commandText, SqlConnection conn = null)
         {
-           
 
 
+            var eliminar = conn == null;
             conn = conn == null ? GetConnection() : conn;
 
             SqlCommand command = new SqlCommand(commandText, conn);
@@ -121,6 +157,10 @@ namespace CIAPI.DataManagers
             {
                 Console.WriteLine(ex.Message);
                 return -1;
+            }
+            finally
+            {
+                if (eliminar) conn.Dispose();
             }
 
         }

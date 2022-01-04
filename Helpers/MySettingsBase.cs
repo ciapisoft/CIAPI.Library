@@ -18,6 +18,13 @@ namespace CIAPI.Helpers
                 return Conf.GetSection("MySettings").GetValue<string>("EMPRESA_NOMBRE");
             }
         }
+        public static string EMPRESA_CUIT
+        {
+            get
+            {
+                return Conf.GetSection("MySettings").GetValue<string>("EMPRESA_CUIT");
+            }
+        }
         public static string API_KEY_SERVICIOS
         {
             get
@@ -127,10 +134,15 @@ namespace CIAPI.Helpers
             {
                 if (_conf == null)
                 {
+#if (DEBUG)
                     var builder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json");
-
+                       .AddJsonFile("appsettings.Development.json");
+#else
+                    var builder = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.Staging.json");
+#endif
                     _conf = builder.Build();
                 }
                 return _conf;
@@ -142,7 +154,11 @@ namespace CIAPI.Helpers
             try
             {
 
-                var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.json");
+#if (DEBUG)
+                    var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.Development.json");
+#else
+                    var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.Staging.json");
+#endif
                 string json = File.ReadAllText(filePath);
                 dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
 

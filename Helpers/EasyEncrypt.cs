@@ -51,12 +51,18 @@ namespace CIAPI.Helpers
         }
         public static string Encrypt(string Data)
         {
-            return Encrypt(Data, passPraseDef, int.Parse(keysize.ToString()));
+            if (String.IsNullOrWhiteSpace(Data))
+                return Data;
+            else
+                return Encrypt(Data, passPraseDef, int.Parse(keysize.ToString()));
 
         }
         public static string Decrypt(string cipherData)
         {
-            return Decrypt(cipherData, passPraseDef, int.Parse(keysize.ToString()));
+            if (String.IsNullOrWhiteSpace(cipherData))
+                return cipherData;
+            else
+                return Decrypt(cipherData, passPraseDef, int.Parse(keysize.ToString()));
 
         }
         private static byte[] Decrypt(byte[] cipherData, byte[] Key, byte[] IV)

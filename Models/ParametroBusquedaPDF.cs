@@ -13,6 +13,10 @@ namespace CIAPI.Models
 
         public bool MantenerPrimerValor { get; set; }
 
+        public int MantenerValorNro { get; set; } = 999999;
+
+        public int ValorNro { get; set; }
+
         //Usar siempre minusculas
         public List<string> PalabrasClavesTitulo { get; set; }
         public bool UsarLikeParaTitulos;
