@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace CIAPI.ViewModels
 {
+    
     public class DataListViewModel
     {
         public int Id { get; set; }
