@@ -519,6 +519,17 @@ namespace CIAPI.Helpers
                 ret = "0" + ret;
             }
             return ret;
+        } 
+        public static string Espacios(string valor, int largoTotal) 
+        { 
+            var falta = largoTotal - valor.Length; 
+            var ret = valor; 
+            for (int i = 1; i <= falta; i++) 
+            { 
+                ret = ret + " ";
+                
+            } 
+            return ret;
         }
         /// <summary>
         /// Compara 2 cuit con o sin guiones y devuelve true si son iguales
