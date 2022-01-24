@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration.Json;
 namespace CIAPI.Helpers
 {
-    public static class MySettingsBlazorBase : MySettingBase
+    public static class MySettingsBlazorBase 
     {
  
         public static string EMPRESA_NOMBRE
@@ -155,9 +155,9 @@ namespace CIAPI.Helpers
             {
 
 #if (DEBUG)
-                    var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.Development.json");
+                    var filePath = Path.Combine(AppContext.BaseDirectory, "wwwroot/appSettings.Development.json");
 #else
-                    var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.Staging.json");
+                    var filePath = Path.Combine(AppContext.BaseDirectory, "wwwroot/appSettings.Staging.json");
 #endif
                 string json = File.ReadAllText(filePath);
                 dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);

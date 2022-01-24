@@ -18,7 +18,7 @@ namespace CIAPI.DataManagers
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json");
+            .AddJsonFile("wwwroot/appsettings.json");
 
             var configuration = builder.Build();
             var connectionString = configuration.GetConnectionString("MainContext");
