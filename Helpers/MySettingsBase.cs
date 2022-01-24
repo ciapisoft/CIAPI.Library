@@ -137,11 +137,11 @@ namespace CIAPI.Helpers
 #if (DEBUG)
                     var builder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                       .AddJsonFile("appsettings.Development.json");
+                       .AddJsonFile("wwwroot/appsettings.Development.json");
 #else
                     var builder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.Staging.json");
+                        .AddJsonFile("wwwroot/appsettings.Staging.json");
 #endif
                     _conf = builder.Build();
                 }
