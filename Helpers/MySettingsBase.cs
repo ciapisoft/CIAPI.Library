@@ -163,11 +163,20 @@ namespace CIAPI.Helpers
         {
             try
             {
+                String path;
+                if (File.Exists("appsettings.json"))
+                {
+                    path = "";
+                }
+                else
+                {
+                    path = "wwwroot/";
+                }
 
 #if (DEBUG)
-                    var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.Development.json");
+                var filePath = Path.Combine(AppContext.BaseDirectory, path+"appSettings.Development.json");
 #else
-                    var filePath = Path.Combine(AppContext.BaseDirectory, "appSettings.Staging.json");
+                    var filePath = Path.Combine(AppContext.BaseDirectory,  path+"appSettings.Staging.json");
 #endif
                 string json = File.ReadAllText(filePath);
                 dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
