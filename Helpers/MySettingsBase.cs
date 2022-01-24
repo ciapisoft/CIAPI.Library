@@ -134,14 +134,24 @@ namespace CIAPI.Helpers
             {
                 if (_conf == null)
                 {
+                    String path;
+                    if (File.Exists("appsettings.json"))
+                    {
+                        path = "";
+                    }
+                    else
+                    {
+                        path = "wwwroot/";
+                    }
 #if (DEBUG)
+
                     var builder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                       .AddJsonFile("appsettings.Development.json");
+                       .AddJsonFile(path + "appsettings.Development.json");
 #else
                     var builder = new ConfigurationBuilder()
                         .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.Staging.json");
+                        .AddJsonFile(path + "appsettings.Staging.json");
 #endif
                     _conf = builder.Build();
                 }

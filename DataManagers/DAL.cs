@@ -15,10 +15,19 @@ namespace CIAPI.DataManagers
     {
         public static string GetMainConnStr()
         {
+            String path;
+            if (File.Exists("appsettings.json"))
+            {
+                path = "appsettings.json";
+            }
+            else
+            {
+                path = "wwwroot/appsettings.json";
+            }
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("wwwroot/appsettings.json");
+            .AddJsonFile(path);
 
             var configuration = builder.Build();
             var connectionString = configuration.GetConnectionString("MainContext");
