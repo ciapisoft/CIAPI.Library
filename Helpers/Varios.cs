@@ -243,7 +243,21 @@ namespace CIAPI.Helpers
                     //{
                     //    var a = 1;
                     //}
-                    var pclaveOK = AnalisisPalabraClave(vtexto[i], param);
+                    if(param.PalabrasClavesValor!=null)
+                    { 
+                        var cantpalabras = ContarMaxPalabras(param.PalabrasClavesValor);
+                        var frase = "";
+                        for(var j=0;j<=cantpalabras; j++)
+                        {
+                            if(vtexto.Count>i+j)
+                            { 
+                                frase += (frase == "" ? "" : " ") + vtexto[i + j];
+                                if (frase.ToLower() == "nota" || frase.ToLower()=="factura")
+                                    Debug.Write("aa");
+                                var pclaveOK = AnalisisPalabraClave(frase, param);
+                            }
+                        }
+                    }
 
                     //var palabraClaveEncontrada = false;
                     //if (param.PalabrasClavesValor != null)
@@ -314,6 +328,22 @@ namespace CIAPI.Helpers
 
                 }
             }
+        }
+        private static int ContarMaxPalabras(List<string> listaPalabras)
+        {
+            var maxPalabras = 0;
+            if(listaPalabras!=null)
+            { 
+                foreach(var palabra in listaPalabras)
+                {
+                    var conteo = palabra.Count(f => f == ' ');
+                    if (conteo+1>maxPalabras)
+                    {
+                        maxPalabras = conteo+1;
+                    }
+                }
+            }
+            return maxPalabras;
         }
         private static bool AnalisisRegExs(string dato, ParametroBusquedaPDF param)
         {
@@ -386,8 +416,8 @@ namespace CIAPI.Helpers
                             if (!String.IsNullOrEmpty(textoresult))
                             {
                                 param.ValorNro++;
-                                param.Valor = textoresult;
                                 ret = true;
+                                param.Valor = textoresult;
                             }
                         }
                     }

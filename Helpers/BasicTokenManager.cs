@@ -11,24 +11,50 @@ namespace CIAPI.Helpers
         public static bool isValid(string token, DateTime fecha, string apikey)
         {
             var ret = false;
-            if(token.Length>10)
-            {
-                var tokenplain = EasyEncrypt.Decrypt(token);
-                var listToken = tokenplain.Split('|');
-                if (listToken.Count()==2)
+            if(token!=null)                       
+                if(token.Length>10)
                 {
-                    var fectoken = DateTime.Parse(listToken[0]);
-                    var apikeytoken = listToken[1];
-                    if(Math.Abs(fectoken.Subtract(fecha).TotalMinutes) < 1440)
+                    var tokenplain = EasyEncrypt.Decrypt(token);
+                    var listToken = tokenplain.Split('|');
+                    if (listToken.Count()==2)
                     {
-                        if(Math.Abs(fecha.Subtract(DateTime.Now).TotalHours) <= 12)
-                        { 
-                            ret = (apikey == apikeytoken);
-                        }
+                        var fectoken = DateTime.Parse(listToken[0]);
+                        var apikeytoken = listToken[1];
+                        if(Math.Abs(fectoken.Subtract(fecha).TotalMinutes) < 1440)
+                        {
+                            if(Math.Abs(fecha.Subtract(DateTime.Now).TotalHours) <= 12)
+                            { 
+                                ret = (apikey == apikeytoken);
+                            }
                      
+                        }
                     }
                 }
-            }
+            return ret;
+        }
+
+        public static bool isValidVB6(string token, DateTime fecha, string apikey)
+        {
+            var ret = false;
+            if (token != null)
+                if (token.Length > 10)
+                {
+                    var tokenplain = token;
+                    var listToken = tokenplain.Split('|');
+                    if (listToken.Count() == 2)
+                    {
+                        var fectoken = DateTime.Parse(listToken[0]);
+                        var apikeytoken = listToken[1];
+                        if (Math.Abs(fectoken.Subtract(fecha).TotalMinutes) < 1440)
+                        {
+                            if (Math.Abs(fecha.Subtract(DateTime.Now).TotalHours) <= 12)
+                            {
+                                ret = (apikey == apikeytoken);
+                            }
+
+                        }
+                    }
+                }
             return ret;
         }
 

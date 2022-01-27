@@ -11,6 +11,7 @@ namespace CIAPI.Models
 
         public string Valor { get; set; }
 
+
         public bool MantenerPrimerValor { get; set; }
 
         public int MantenerValorNro { get; set; } = 999999;
