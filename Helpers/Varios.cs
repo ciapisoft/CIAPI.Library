@@ -588,6 +588,7 @@ namespace CIAPI.Helpers
             {
                 ret += RandomString(paso)+c;
             }
+            ret += RandomString(paso);
             return ret;
         }
         public static string DesOfuscString(string text, int paso = 3)

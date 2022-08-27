@@ -138,7 +138,7 @@ namespace CIAPI.Helpers
                         }
                     };
 
-                    var words = wordExtractor.GetWords(letters, wordExtractorOptions);
+                    var words = wordExtractor.GetWords(letters);
 
                     // 2. Segment page
                     var pageSegmenter = DocstrumBoundingBoxes.Instance;
@@ -147,7 +147,7 @@ namespace CIAPI.Helpers
 
                     };
 
-                    var textBlocks = pageSegmenter.GetBlocks(words, pageSegmenterOptions);
+                    var textBlocks = pageSegmenter.GetBlocks(words);
 
                     // 3. Postprocessing
                     var readingOrder = UnsupervisedReadingOrderDetector.Instance;

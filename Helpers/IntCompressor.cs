@@ -9,15 +9,20 @@ namespace CIAPI.Helpers
 {
     public static class IntCompressor
     {
+        ////static readonly IEnumerable<char> map = new char[] {
+        ////'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
+        ////'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+        ////'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+        ////'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't',
+        ////'u', 'v', 'x', 'y', 'z', '2', '3', '4',
+        ////};
         static readonly IEnumerable<char> map = new char[] {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
         'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-        'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-        'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't',
-        'u', 'v', 'x', 'y', 'z', '2', '3', '4',
+        'X', 'Y', 'Z', '1', '2', '3', '4','5','6','7','8','9','0'
         };
-    // This does not "pad" values
-    public static string Encode(long inp)
+        // This does not "pad" values
+        public static string Encode(long inp)
         {
             Debug.Assert(inp >= 0, "not implemented for negative numbers");
 
