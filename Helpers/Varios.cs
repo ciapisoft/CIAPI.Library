@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CIAPI.Models;
+using Org.BouncyCastle.Ocsp;
 
 namespace CIAPI.Helpers
 {
@@ -572,6 +574,65 @@ namespace CIAPI.Helpers
             var c1 = CUITL1.Replace("-", "").Trim();
             var c2 = CUITL2.Replace("-", "").Trim();
             return c1 == c2;
+        }
+
+        /// <summary>
+        /// Ofusca poniendo 3 caracteres random uno real
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string OfuscString(string text, int paso=3)
+        {
+            var ret = "";
+            foreach(var c in text)
+            {
+                ret += RandomString(paso)+c;
+            }
+            return ret;
+        }
+        public static string DesOfuscString(string text, int paso = 3)
+        {
+            var ret = "";
+            int i = 0;
+            foreach (var c in text)
+            {
+                i++;
+                if ((i % (paso+1))==0)
+                {
+                    ret += c;
+                }
+            }
+            return ret;
+        }
+        private static readonly Random _random = new Random();
+        
+
+        // Generates a random number within a range.      
+        public static int RandomNumber(int min, int max)
+        {
+            return _random.Next(min, max);
+        }
+        // Generates a random string with a given size.    
+        public static string RandomString(int size, bool lowerCase = false)
+        {
+            var builder = new StringBuilder(size);
+
+            // Unicode/ASCII Letters are divided into two blocks
+            // (Letters 65–90 / 97–122):
+            // The first group containing the uppercase letters and
+            // the second group containing the lowercase.  
+
+            // char is a single Unicode character  
+            char offset = lowerCase ? 'a' : 'A';
+            const int lettersOffset = 26; // A...Z or a..z: length=26  
+
+            for (var i = 0; i < size; i++)
+            {
+                var @char = (char)_random.Next(offset, offset + lettersOffset);
+                builder.Append(@char);
+            }
+
+            return lowerCase ? builder.ToString().ToLower() : builder.ToString();
         }
     }
 }
