@@ -13,6 +13,7 @@ namespace CIAPI.DataManagers
 {
     public class DAL
     {
+        private static SqlConnection cnnDefault { get; set; }
         public static string GetMainConnStr()
         {
             String path;
@@ -33,40 +34,204 @@ namespace CIAPI.DataManagers
             var connectionString = configuration.GetConnectionString("MainContext");
             return connectionString;
         }
+        public static SqlConnection GetDefaultConnection(string connStr = "")
+        {
+
+            //connStr = connStr == "" ? GetMainConnStr() : connStr;
+
+
+            SqlConnection connection = null;
+            if (cnnDefault == null || cnnDefault.State == ConnectionState.Broken)
+            {
+                connection = GetConnection();
+
+
+            }
+            else
+            {
+                connection = cnnDefault;
+                if (cnnDefault.State == ConnectionState.Closed)
+                    connection.Open();
+
+            }
+            return connection;
+
+        }
         public static SqlConnection GetConnection(string connStr = "")
         {
 
             connStr = connStr == "" ? GetMainConnStr() : connStr;
 
 
-            var connection = new SqlConnection(connStr);
+            SqlConnection connection = null;
 
-            connection.Open();
+            connection = new SqlConnection(connStr);
+
+            try
+            {
+                connection.Open();
+            }
+            catch (Exception ex)
+            {
+
+                Console.Write(ex.ToString());
+                throw;
+            }
 
             return connection;
 
         }
+        public static void CloseDefaultConnection()
+        {
+
+
+            if (cnnDefault != null && cnnDefault.State == ConnectionState.Open)
+            {
+                cnnDefault.Close();
+                cnnDefault.Dispose();
+                cnnDefault = null;
+            }
+        }
 
         public static DataSet GetDataSet(SqlConnection conn, string queryText)
         {
-            SqlCommand command = new SqlCommand(queryText, conn);
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            DataSet ds = new DataSet();
 
-            
-            adapter.SelectCommand = command;
-            _ = adapter.Fill(ds);
+            DataSet ds = null;
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                ds = new DataSet();
+
+
+                adapter.SelectCommand = command;
+                _ = adapter.Fill(ds);
+            }
+            else
+            {
+                ds = GetDataSet(queryText);
+            }
+
+            return ds;
+        }
+        public static DataSet GetDataSet(string queryText)
+        {
+
+            var conn = GetDefaultConnection();
+
+
+            var ds = GetDataSet(conn, queryText);
+
+            //conn.Dispose();
 
 
             return ds;
         }
+
+        public static int GetScalar(SqlConnection conn, string queryText)
+        {
+
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                var result = command.ExecuteScalar();
+
+
+                if (result != null)
+                {
+                    int final;
+                    if (int.TryParse(result.ToString(), out final))
+                    {
+                        return final;
+                    }
+                }
+            }
+            else
+            {
+
+                return GetScalar(queryText);
+            }
+            return 0;
+        }
+        public static int GetScalar(SqlConnection conn, SqlTransaction transaction, string queryText)
+        {
+
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText,  conn, transaction);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                var result = command.ExecuteScalar();
+
+
+                if (result != null)
+                {
+                    int final;
+                    if (int.TryParse(result.ToString(), out final))
+                    {
+                        return final;
+                    }
+                }
+            }
+            else
+            {
+
+                return GetScalar(queryText);
+            }
+            return 0;
+        }
+
+        public static int GetScalar(string queryText)
+        {
+            var conn = GetDefaultConnection();
+            return GetScalar(conn, queryText);
+        }
+
+        public static DateTime GetDateTime(SqlConnection conn, string queryText)
+        {
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                var result = command.ExecuteScalar();
+
+
+                if (result != null)
+                {
+                    DateTime final;
+                    if (DateTime.TryParse(result.ToString(), out final))
+                    {
+                        return final;
+                    }
+                }
+            }
+            else
+            {
+                return GetDateTime(queryText);
+            }
+            return new DateTime(1900, 1, 1);
+        }
+
+        public static DateTime GetDateTime(string queryText)
+        {
+            var conn = GetDefaultConnection();
+            return GetDateTime(conn, queryText);
+        }
         public static int Execute(SqlConnection conn, string queryInsUpd)
         {
-            SqlCommand command = new SqlCommand(queryInsUpd, conn);
-            SqlDataAdapter adapter = new SqlDataAdapter();
+            int ret = 0;
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryInsUpd, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter();
 
 
-            var ret = command.ExecuteNonQuery();
+                ret = command.ExecuteNonQuery();
+            }
+            else
+            {
+                ret = Execute(queryInsUpd);
+            }
 
 
             return ret;
@@ -74,39 +239,32 @@ namespace CIAPI.DataManagers
 
         public static int Execute(string queryInsUpd)
         {
-            var conn = GetConnection();
+            var conn = GetDefaultConnection();
 
 
             var ret = Execute(conn, queryInsUpd);
 
-            conn.Dispose();
+
 
             return ret;
         }
 
-        public static DataSet GetDataSet(string queryText)
-        {
-
-            var conn = GetConnection();
 
 
-            var ds = GetDataSet(conn, queryText);
-
-            conn.Dispose();
-
-            return ds;
-        }
         public static DataTable GetTable(SqlConnection conn, string queryText)
         {
 
-            DataSet ds = GetDataSet(conn, queryText);
+            if (conn != null)
+            {
+                var ds = GetDataSet(conn, queryText);
+                return ds.Tables[0];
+            }
+            else
+            {
+                var table = GetTable(queryText);
+                return table;
+            }
 
-
-
-
-
-
-            return ds.Tables[0];
         }
 
 
@@ -114,11 +272,11 @@ namespace CIAPI.DataManagers
         public static DataTable GetTable(string queryText)
         {
 
-            var conn = GetConnection();
+            var conn = GetDefaultConnection();
 
             var table = GetTable(conn, queryText);
 
-            conn.Dispose();
+
 
             return table;
         }
@@ -126,17 +284,25 @@ namespace CIAPI.DataManagers
 
         public static List<T> GetTableMapped<T>(SqlConnection conn, string queryText)
         {
-            var table = GetTable(conn, queryText);
-            var ret = ConvertToList<T>(table);
+            List<T> ret;
+            if (conn != null)
+            {
+                var table = GetTable(conn, queryText);
+                ret = ConvertToList<T>(table);
+            }
+            else
+            {
+                ret = GetTableMapped<T>(queryText);
+            }
             return ret;
         }
         public static List<T> GetTableMapped<T>(string queryText)
         {
 
-            var conn = GetConnection();
-            var table = GetTableMapped<T>(conn,queryText);
+            var conn = GetDefaultConnection();
+            var table = GetTableMapped<T>(conn, queryText);
 
-            conn.Dispose();
+
 
             return table;
 
@@ -151,7 +317,7 @@ namespace CIAPI.DataManagers
 
 
             var eliminar = conn == null;
-            conn = conn == null ? GetConnection() : conn;
+            conn = conn == null ? GetDefaultConnection() : conn;
 
             SqlCommand command = new SqlCommand(commandText, conn);
 
@@ -196,19 +362,19 @@ namespace CIAPI.DataManagers
             }).ToList();
         }
 
-        public static List<DataListViewModel> ConvertToDataList(DataTable dt, string idTable, string nameTable )
+        public static List<DataListViewModel> ConvertToDataList(DataTable dt, string idTable, string nameTable)
         {
 
 
 
             List<DataListViewModel> ret = new List<DataListViewModel>();
             ret = (from DataRow dr in dt.Rows
-                           select new DataListViewModel()
-                           {
-                               Id = int.Parse(dr[idTable].ToString()),
-                               Nombre= dr[nameTable].ToString(),
-                               Detalle = ""
-                           }).ToList();
+                   select new DataListViewModel()
+                   {
+                       Id = int.Parse(dr[idTable].ToString()),
+                       Nombre = dr[nameTable].ToString(),
+                       Detalle = ""
+                   }).ToList();
             return ret;
 
 
