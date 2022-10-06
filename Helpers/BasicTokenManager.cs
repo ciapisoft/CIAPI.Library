@@ -47,7 +47,7 @@ namespace CIAPI.Helpers
                         var apikeytoken = listToken[1];
                         if (Math.Abs(fectoken.Subtract(fecha).TotalMinutes) < 1440)
                         {
-                            if (Math.Abs(fecha.Subtract(DateTime.Now).TotalHours) <= 12)
+                            if (Math.Abs(fecha.Subtract(DateTime.Now).TotalHours) <= 24)
                             {
                                 ret = (apikey == apikeytoken);
                             }
