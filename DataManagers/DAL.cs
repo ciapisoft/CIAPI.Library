@@ -187,6 +187,25 @@ namespace CIAPI.DataManagers
             return GetScalar(conn, queryText);
         }
 
+        public static List<String> GetStringColumn(string queryText){
+            var conn = GetDefaultConnection();
+
+            List<String> columnData = new List<String>();
+
+                using(SqlCommand command = new SqlCommand(queryText, conn))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            columnData.Add(reader.GetString(0));
+                        }         
+                    }
+                }
+                
+            return columnData;
+
+        }
         public static DateTime GetDateTime(SqlConnection conn, string queryText)
         {
             if (conn != null)
