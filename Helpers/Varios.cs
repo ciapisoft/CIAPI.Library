@@ -114,9 +114,11 @@ namespace CIAPI.Helpers
             return ret;
 
         }
-        public static string PeriodoActual()
+        public static string PeriodoActual(int sumaMeses=0)
         {
-            return String.Format("{0}/{1}", DateTime.Now.Year.ToString("0000"), DateTime.Now.Month.ToString("00"));
+            var fecha = DateTime.Now.AddMonths(sumaMeses);
+
+            return String.Format("{0}/{1}", fecha.Year.ToString("0000"), fecha.Month.ToString("00"));
         }
         public static string AnioMesToPeriodo(int Anio, int Mes)
         {
