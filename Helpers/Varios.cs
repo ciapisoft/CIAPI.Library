@@ -82,6 +82,16 @@ namespace CIAPI.Helpers
 
     public static class Varios
     {
+        public static DateTime UltimoDiaMesPeriodo(string periodo)
+        {
+            PeriodoStruct periodosig = new PeriodoStruct(Varios.SumaPeriodo(periodo, 1));
+            return new DateTime(periodosig.Anio, periodosig.Mes, 1).AddDays(-1);
+        }
+        public static DateTime PrimerDiaMesPeriodo(string periodo)
+        {
+            PeriodoStruct periodosig = new PeriodoStruct(periodo);
+            return new DateTime(periodosig.Anio, periodosig.Mes, 1);
+        }
         public static bool IsNumeric(this string s)
         {
             float output;
