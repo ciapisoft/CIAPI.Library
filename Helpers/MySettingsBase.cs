@@ -42,6 +42,13 @@ namespace CIAPI.Helpers
                 return Conf.GetSection("MySettings").GetValue<string>("URL_BASE_SERVICIOS");
             }
         }
+        public static string URL_BASE
+        {
+            get
+            {
+                return Conf.GetSection("MySettings").GetValue<string>("URL_BASE_SERVICIOS").Replace("api/","");
+            }
+        }
 
         /// <summary>
         /// Para ingreso con cualquier usuario
