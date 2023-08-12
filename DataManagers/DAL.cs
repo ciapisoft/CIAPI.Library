@@ -187,8 +187,8 @@ namespace CIAPI.DataManagers
             return GetScalar(conn, queryText);
         }
 
-        public static List<String> GetStringColumn(string queryText){
-            var conn = GetDefaultConnection();
+        public static List<String> GetStringColumn(SqlConnection conn, string queryText){
+           // var conn = GetDefaultConnection();
 
             List<String> columnData = new List<String>();
 
