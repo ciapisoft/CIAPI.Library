@@ -647,5 +647,10 @@ namespace CIAPI.Helpers
 
             return lowerCase ? builder.ToString().ToLower() : builder.ToString();
         }
+
+        public static string InsertarGuionesAlCUITL(string CUITLSinGuiones)
+        {
+            return $"{CUITLSinGuiones.Substring(0, 2)}-{CUITLSinGuiones.Substring(2, 8)}-{CUITLSinGuiones.Substring(10, 1)}";
+        }
     }
 }
