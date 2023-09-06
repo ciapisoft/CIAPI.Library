@@ -650,6 +650,11 @@ namespace CIAPI.Helpers
 
         public static string InsertarGuionesAlCUITL(string CUITLSinGuiones)
         {
+            if (CUITLSinGuiones.Length < 11)
+            {
+                CUITLSinGuiones = Varios.CerosIzq(CUITLSinGuiones, 11);
+                
+            }
             return $"{CUITLSinGuiones.Substring(0, 2)}-{CUITLSinGuiones.Substring(2, 8)}-{CUITLSinGuiones.Substring(10, 1)}";
         }
     }
