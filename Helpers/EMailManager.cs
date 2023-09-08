@@ -67,7 +67,7 @@ namespace CIAPI.Helpers
 
             
             
-            client.SendAsync(message);
+            var result = client.Send(message);
             //client.Disconnect(true);
             //client.Dispose();
         }
