@@ -207,6 +207,70 @@ namespace CIAPI.DataManagers
 
         }
 
+        #region "GetDouble"
+        public static double GetDouble(SqlConnection conn, string queryText)
+        {
+
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                var result = command.ExecuteScalar();
+
+
+                if (result != null)
+                {
+                    double final;
+                    if (double.TryParse(result.ToString(), out final))
+                    {
+                        return final;
+                    }
+                }
+            }
+            else
+            {
+
+                return GetDouble(queryText);
+            }
+            return 0;
+        }
+        public static double GetDouble(SqlConnection conn, SqlTransaction transaction, string queryText)
+        {
+
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText, conn, transaction);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                var result = command.ExecuteScalar();
+
+
+                if (result != null)
+                {
+                    double final;
+                    if (double.TryParse(result.ToString(), out final))
+                    {
+                        return final;
+                    }
+                }
+            }
+            else
+            {
+
+                return GetDouble(queryText);
+            }
+            return 0;
+        }
+
+        public static double GetDouble(string queryText)
+        {
+            var conn = GetDefaultConnection();
+            return GetDouble(conn, queryText);
+        }
+
+
+
+        #endregion
+
         public static List<String> GetStringColumn(SqlConnection conn,SqlTransaction transaction, string queryText)
         {
             // var conn = GetDefaultConnection();
