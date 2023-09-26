@@ -150,6 +150,18 @@ namespace CIAPI.Helpers
             return edad;
 
         }
+
+        public static string GetFechaAbreviada(DateTime fechahora)
+        {
+            if (fechahora.Date == DateTime.Now.Date && (fechahora.Hour != 0 || fechahora.Minute != 0))
+                return fechahora.ToString("H:mm");
+            else
+                if (fechahora.Date.Year == DateTime.Now.Date.Year)
+                return fechahora.ToString("dd/MM");
+            else
+                return fechahora.ToString("MM/yy");
+
+        }
         public static string SumaPeriodo(string periodo, int meses = 1)
         {
             if (!string.IsNullOrEmpty(periodo))

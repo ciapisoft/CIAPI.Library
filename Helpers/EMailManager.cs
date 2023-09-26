@@ -31,7 +31,7 @@ namespace CIAPI.Helpers
             {
                 i++;
                 MailboxAddress to = new MailboxAddress(nombreDestinatario + (i==1 ? "" : i.ToString()),
-                correoDestinatario);
+                unDest);
                 message.To.Add(to);
             }
             //MailboxAddress to = new MailboxAddress(nombreDestinatario,
