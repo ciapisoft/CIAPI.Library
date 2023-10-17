@@ -26,11 +26,13 @@ namespace CIAPI.Helpers
         const int K_DEFAULT_WAIT =60;  //Seconds
 
 
-        public static TokenForTimeModel GetToken(int numberPass, int secondsWait=K_DEFAULT_WAIT)
+        public static TokenForTimeModel GetToken(int numberPass, int secondsWait=K_DEFAULT_WAIT, DateTime? ahora =null)
         {
             var ret = new TokenForTimeModel();
-
-            ret.time = Math.Truncate(DateTime.UtcNow.Subtract( DateTime.MinValue ).TotalSeconds);
+            
+            DateTime ah = ahora==null ? DateTime.Now : ahora.Value;
+            //ret.time = Math.Truncate(DateTime.UtcNow.Subtract( DateTime.MinValue ).TotalSeconds);
+            ret.time = Math.Truncate(ah.ToUniversalTime().Subtract(DateTime.MinValue).TotalSeconds);
 
             ret.modulus = ret.time % secondsWait;
 
@@ -63,9 +65,9 @@ namespace CIAPI.Helpers
             return ret;
         }
 
-        public static bool IsValidToken(int verifyToken, int numberPass,  int secondsWait = K_DEFAULT_WAIT)
+        public static bool IsValidToken(int verifyToken, int numberPass,  int secondsWait = K_DEFAULT_WAIT, DateTime? ahora = null)
         {
-            var tokenOK = GetToken(numberPass, secondsWait);
+            var tokenOK = GetToken(numberPass, secondsWait, ahora);
 
             return tokenOK.Token == verifyToken;
         }
