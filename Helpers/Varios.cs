@@ -186,6 +186,24 @@ namespace CIAPI.Helpers
                 return "0000/00";
             }
         }
+        public static int DifPeriodos(string periodoInicial, string periodoFinal)
+        {
+            int ret = 0;
+            var periodo = periodoInicial;
+            if(Varios.ValidPeriodo(periodoInicial) && Varios.ValidPeriodo(periodoFinal))
+            { 
+                while(periodo.CompareTo(periodoFinal)<0)
+                {
+                    periodo = SumaPeriodo(periodo);
+                    ret++;
+                }
+            }
+            else
+            { 
+                ret = -1;
+            }
+            return ret;
+        }
         public static void ExtraerInfoPDF(List<string> vtexto, List<ParametroBusquedaPDF> parambusq)
         {
             for(var i=0;i<vtexto.Count; i++)
