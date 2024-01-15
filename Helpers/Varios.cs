@@ -174,7 +174,7 @@ namespace CIAPI.Helpers
                     mes -= 12;
                     anio++;
                 }
-                while (mes < 0)
+                while (mes <= 0)
                 {
                     mes += 12;
                     anio--;
