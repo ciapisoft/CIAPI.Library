@@ -92,7 +92,6 @@ namespace CIAPI.DataManagers
                 cnnDefault = null;
             }
         }
-
         public static DataSet GetDataSet(SqlConnection conn, string queryText)
         {
 
@@ -100,6 +99,27 @@ namespace CIAPI.DataManagers
             if (conn != null)
             {
                 SqlCommand command = new SqlCommand(queryText, conn);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                ds = new DataSet();
+
+
+                adapter.SelectCommand = command;
+                _ = adapter.Fill(ds);
+            }
+            else
+            {
+                ds = GetDataSet(queryText);
+            }
+
+            return ds;
+        }
+        public static DataSet GetDataSet(SqlConnection conn, SqlTransaction transaction, string queryText)
+        {
+
+            DataSet ds = null;
+            if (conn != null)
+            {
+                SqlCommand command = new SqlCommand(queryText, conn, transaction);
                 SqlDataAdapter adapter = new SqlDataAdapter();
                 ds = new DataSet();
 
@@ -355,7 +375,21 @@ namespace CIAPI.DataManagers
         }
 
 
+        public static DataTable GetTable(SqlConnection conn, SqlTransaction transaction, string queryText)
+        {
 
+            if (conn != null)
+            {
+                var ds = GetDataSet(conn, transaction, queryText);
+                return ds.Tables[0];
+            }
+            else
+            {
+                var table = GetTable(queryText);
+                return table;
+            }
+
+        }
         public static DataTable GetTable(SqlConnection conn, string queryText)
         {
 
@@ -386,7 +420,21 @@ namespace CIAPI.DataManagers
             return table;
         }
 
-
+        public static List<T> GetTableMapped<T>(SqlConnection conn, SqlTransaction transaction, string queryText)
+        {
+            List<T> ret;
+            if (conn != null && transaction!=null)
+            {
+                
+                var table = GetTable(conn, transaction, queryText);
+                ret = ConvertToList<T>(table);
+            }
+            else
+            {
+                ret = GetTableMapped<T>(queryText);
+            }
+            return ret;
+        }
         public static List<T> GetTableMapped<T>(SqlConnection conn, string queryText)
         {
             List<T> ret;
