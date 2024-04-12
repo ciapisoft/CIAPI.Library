@@ -7,11 +7,13 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CIAPI.Models;
 using Org.BouncyCastle.Ocsp;
+using UglyToad.PdfPig.Content;
 
 namespace CIAPI.Helpers
 {
     public class PeriodoStruct
     {
+        
         public int Anio { get; set; }
         public int Mes { get; set; }
 
@@ -687,5 +689,50 @@ namespace CIAPI.Helpers
             }
             return $"{CUITLSinGuiones.Substring(0, 2)}-{CUITLSinGuiones.Substring(2, 8)}-{CUITLSinGuiones.Substring(10, 1)}";
         }
+
+        public static  char LetraSiguiente(char letterIn)
+        {
+            char ret;
+            
+            if (letterIn == 'z')
+                ret = 'a';
+            else if (letterIn == 'Z')
+                ret = 'A';
+            else
+            {
+
+                int a = (int)letterIn + 1;
+                if (char.IsLetterOrDigit((char)a) || char.IsSymbol((char)a) || char.IsPunctuation((char)a))
+                    ret = ((char)a);
+                else
+                {
+                    ret = LetraSiguiente((char)a);
+                }
+            }
+            return ret;
+        }
+
+        public static char LetraAnterior(char letterIn)
+        {
+            char ret;
+
+            if (letterIn == 'a')
+                ret = 'z';
+            else if (letterIn == 'A')
+                ret = 'Z';
+            else
+            {
+
+                int a = (int)letterIn + 1;
+                if (char.IsLetterOrDigit((char)a) || char.IsSymbol((char)a) || char.IsPunctuation((char)a))
+                    ret = ((char)a);
+                else
+                {
+                    ret = LetraAnterior((char)a);
+                }
+            }
+            return ret;
+        }
+
     }
 }
