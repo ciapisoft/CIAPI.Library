@@ -15,6 +15,7 @@ namespace CIAPI.Helpers
             int nFactor;
             int nValor;
             int i;
+            cCUIT= cCUIT.Trim();
             if (cCUIT.Length == 13)
                 cAux = cCUIT.Substring(0, 2) + cCUIT.Substring(3, 8) + cCUIT.Substring(12, 1);
             else
