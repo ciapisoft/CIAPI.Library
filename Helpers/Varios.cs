@@ -132,6 +132,12 @@ namespace CIAPI.Helpers
 
             return String.Format("{0}/{1}", fecha.Year.ToString("0000"), fecha.Month.ToString("00"));
         }
+        public static string Fecha2Periodo(DateTime fechaIni, int sumaMeses = 0)
+        {
+            var fecha = fechaIni.AddMonths(sumaMeses);
+
+            return String.Format("{0}/{1}", fecha.Year.ToString("0000"), fecha.Month.ToString("00"));
+        }
         public static string AnioMesToPeriodo(int Anio, int Mes)
         {
             return String.Format("{0}/{1}", Anio.ToString("0000"), Mes.ToString("00"));
