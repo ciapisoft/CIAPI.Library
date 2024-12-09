@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace CIAPI.DataManagers
 {
@@ -508,7 +509,16 @@ namespace CIAPI.DataManagers
                     if (columnNames.Contains(pro.Name))
                     {
                         PropertyInfo pI = objT.GetType().GetProperty(pro.Name);
+                        
+
+
                         pro.SetValue(objT, row[pro.Name] == DBNull.Value ? null : Convert.ChangeType(row[pro.Name], pI.PropertyType));
+
+
+
+
+
+
                     }
                 }
                 return objT;
