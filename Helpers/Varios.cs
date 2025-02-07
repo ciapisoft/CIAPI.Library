@@ -740,5 +740,10 @@ namespace CIAPI.Helpers
             return ret;
         }
 
+        public static string StrSanitize(string s)
+        {           
+            return s.Replace("'", "''");
+        }
+
     }
 }
