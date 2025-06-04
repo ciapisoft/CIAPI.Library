@@ -426,6 +426,12 @@ namespace CIAPI.Helpers
                             var textoresult = ValidarTipoDato(dato, param.Tipo); 
                             if (!String.IsNullOrEmpty(textoresult))
                             {
+
+                                //if (param.Nombre.ToLower() == "montototal")
+                                //{
+                                //    var a = 1;
+                                //}
+
                                 param.ValorNro++;
                                 param.Valor = textoresult;
                                 ret = true;
@@ -569,7 +575,7 @@ namespace CIAPI.Helpers
                                     }
                                 }
                                 num = num.Substring(0, num.Length - 2) + "," + num.Substring(num.Length - 2, 2);
-                                if(float.TryParse(num, out var result2))
+                                if(decimal.TryParse(num, out var result2))
                                 {
                                     ret = result2.ToString();
                                 }
