@@ -40,7 +40,9 @@ namespace CIAPI.Library.Helpers
 
                     if (_mode == FtpMode.FTPS)
                     {
-                        
+                        // Habilitar FTPS (SSL/TLS)
+                        _ftpClient.Config.EncryptionMode = FtpEncryptionMode.Explicit; // Usa TLS explícito (puerto 21)
+                        _ftpClient.Config.DataConnectionEncryption = true;
                         // Opcional: aceptar cualquier certificado (no recomendado en producción)
                         _ftpClient.ValidateCertificate += (control, e) => { e.Accept = true; };
                     }
