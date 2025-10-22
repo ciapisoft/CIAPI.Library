@@ -14,13 +14,15 @@ namespace CIAPI.Helpers
 
         private static byte[] Encrypt(byte[] clearData, byte[] Key, byte[] IV)
         {
-            MemoryStream ms = new MemoryStream();
-            Rijndael alg = Rijndael.Create();
+            using MemoryStream ms = new MemoryStream();
+            using Aes alg = Aes.Create();
             alg.Key = Key;
             alg.IV = IV;
-            CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
+            alg.Mode = CipherMode.CBC;
+            alg.Padding = PaddingMode.PKCS7;
+            using CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(clearData, 0, clearData.Length);
-            cs.Close();
+            cs.FlushFinalBlock();
             byte[] encryptedData = ms.ToArray();
             return encryptedData;
         }
@@ -67,13 +69,15 @@ namespace CIAPI.Helpers
         }
         private static byte[] Decrypt(byte[] cipherData, byte[] Key, byte[] IV)
         {
-            MemoryStream ms = new MemoryStream();
-            Rijndael alg = Rijndael.Create();
+            using MemoryStream ms = new MemoryStream();
+            using Aes alg = Aes.Create();
             alg.Key = Key;
             alg.IV = IV;
-            CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
+            alg.Mode = CipherMode.CBC;
+            alg.Padding = PaddingMode.PKCS7;
+            using CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(cipherData, 0, cipherData.Length);
-            cs.Close();
+            cs.FlushFinalBlock();
             byte[] decryptedData = ms.ToArray();
             return decryptedData;
         }
