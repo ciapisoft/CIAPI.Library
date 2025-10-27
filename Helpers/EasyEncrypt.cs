@@ -107,7 +107,7 @@ namespace CIAPI.Helpers
                     return String.Concat(Bits);
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 return String.Concat(Bits);
             }

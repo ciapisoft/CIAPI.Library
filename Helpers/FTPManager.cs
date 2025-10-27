@@ -89,6 +89,72 @@ namespace CIAPI.Library.Helpers
             }
         }
 
+        /// <summary>
+        /// Obtiene la fecha de modificación y el tamaño (bytes) de un archivo remoto.
+        /// Devuelve una tupla (LastModified, Size). Si no se puede obtener alguno de los valores retorna null para ese valor.
+        /// </summary>
+        /// <param name="remoteFileName">Nombre del archivo en el directorio actual remoto (o ruta relativa)</param>
+        /// <returns>(DateTime? LastModified, long? Size)</returns>
+        public (DateTime? LastModified, long? Size) GetFileInfo(string remoteFileName)
+        {
+            if (string.IsNullOrWhiteSpace(remoteFileName))
+                throw new ArgumentException("remoteFileName no puede estar vacío.", nameof(remoteFileName));
+
+            Connect();
+            var remoteUri = CombinePath(_currentDirectory, remoteFileName);
+
+            try
+            {
+                if (_mode == FtpMode.FTP || _mode == FtpMode.FTPS)
+                {
+                    DateTime? last = null;
+                    long? size = null;
+
+                    // Intentamos obtener la fecha de modificación (puede lanzar en algunos servidores)
+                    try
+                    {
+                        // FluentFTP: GetModifiedTime acepta ruta remota
+                        last = _ftpClient.GetModifiedTime(remoteUri, FtpDate.Original);
+                    }
+                    catch
+                    {
+                        // Ignorar y dejar null
+                        last = null;
+                    }
+
+                    // Intentamos obtener el tamaño
+                    try
+                    {
+                        size = _ftpClient.GetFileSize(remoteUri);
+                    }
+                    catch
+                    {
+                        size = null;
+                    }
+
+                    return (last, size);
+                }
+                else // SFTP
+                {
+                    try
+                    {
+                        var attr = _sftpClient.GetAttributes(remoteUri);
+                        DateTime? last = attr.LastWriteTime;
+                        long? size = attr.Size;
+                        return (last, size);
+                    }
+                    catch
+                    {
+                        return (null, null);
+                    }
+                }
+            }
+            catch
+            {
+                return (null, null);
+            }
+        }
+
         public void DownloadFile(string remoteFileName, string localPath)
         {
             Connect();
