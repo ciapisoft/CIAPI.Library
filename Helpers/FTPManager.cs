@@ -114,7 +114,7 @@ namespace CIAPI.Library.Helpers
                     try
                     {
                         // FluentFTP: GetModifiedTime acepta ruta remota
-                        last = _ftpClient.GetModifiedTime(remoteUri, FtpDate.Original);
+                        last = _ftpClient.GetModifiedTime(remoteUri);
                     }
                     catch
                     {
