@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace CIAPI.DataManagers
 {
@@ -114,6 +115,28 @@ namespace CIAPI.DataManagers
 
             return ds;
         }
+        public static DataSet GetDataSet(SqlConnection conn, SqlCommand cmd)
+        {
+
+            DataSet ds = null;
+            if (conn != null)
+            {
+                //SqlCommand command = new SqlCommand(conn,cmd);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                ds = new DataSet();
+
+
+                adapter.SelectCommand = cmd;
+                _ = adapter.Fill(ds);
+            }
+            else
+            {
+                ds = GetDataSet(cmd);
+            }
+
+            return ds;
+        }
+
         public static DataSet GetDataSet(SqlConnection conn, SqlTransaction transaction, string queryText)
         {
 
@@ -135,6 +158,27 @@ namespace CIAPI.DataManagers
 
             return ds;
         }
+        public static DataSet GetDataSet(SqlConnection conn, SqlTransaction transaction, SqlCommand cmd)
+        {
+
+            DataSet ds = null;
+            if (conn != null)
+            {
+                //SqlCommand command = new SqlCommand(queryText, conn, transaction);
+                SqlDataAdapter adapter = new SqlDataAdapter();
+                ds = new DataSet();
+
+
+                adapter.SelectCommand = cmd;
+                _ = adapter.Fill(ds);
+            }
+            else
+            {
+                ds = GetDataSet(cmd);
+            }
+
+            return ds;
+        }
         public static DataSet GetDataSet(string queryText)
         {
 
@@ -142,6 +186,20 @@ namespace CIAPI.DataManagers
 
 
             var ds = GetDataSet(conn, queryText);
+
+            //conn.Dispose();
+
+
+            return ds;
+        }
+
+        public static DataSet GetDataSet(SqlCommand cmd)
+        {
+
+            var conn = GetDefaultConnection();
+
+
+            var ds = GetDataSet(conn, cmd);
 
             //conn.Dispose();
 
@@ -391,6 +449,23 @@ namespace CIAPI.DataManagers
             }
 
         }
+
+        public static DataTable GetTable(SqlConnection conn, SqlTransaction transaction, SqlCommand cmd)
+        {
+
+            if (conn != null)
+            {
+                var ds = GetDataSet(conn, transaction, cmd);
+                return ds.Tables[0];
+            }
+            else
+            {
+                var table = GetTable(cmd);
+                return table;
+            }
+
+        }
+
         public static DataTable GetTable(SqlConnection conn, string queryText)
         {
 
@@ -406,7 +481,21 @@ namespace CIAPI.DataManagers
             }
 
         }
+        public static DataTable GetTable(SqlConnection conn, SqlCommand cmd)
+        {
 
+            if (conn != null)
+            {
+                var ds = GetDataSet(conn, cmd);
+                return ds.Tables[0];
+            }
+            else
+            {
+                var table = GetTable(cmd);
+                return table;
+            }
+
+        }
 
 
         public static DataTable GetTable(string queryText)
@@ -415,6 +504,19 @@ namespace CIAPI.DataManagers
             var conn = GetDefaultConnection();
 
             var table = GetTable(conn, queryText);
+
+
+
+            return table;
+        }
+
+
+        public static DataTable GetTable(SqlCommand cmd)
+        {
+
+            var conn = GetDefaultConnection();
+
+            var table = GetTable(conn, cmd);
 
 
 
@@ -436,6 +538,23 @@ namespace CIAPI.DataManagers
             }
             return ret;
         }
+
+        public static List<T> GetTableMapped<T>(SqlConnection conn, SqlTransaction transaction, SqlCommand cmd)
+        {
+            List<T> ret;
+            if (conn != null && transaction != null)
+            {
+
+                var table = GetTable(conn, transaction, cmd);
+                ret = ConvertToList<T>(table);
+            }
+            else
+            {
+                ret = GetTableMapped<T>(cmd);
+            }
+            return ret;
+        }
+
         public static List<T> GetTableMapped<T>(SqlConnection conn, string queryText)
         {
             List<T> ret;
@@ -447,6 +566,21 @@ namespace CIAPI.DataManagers
             else
             {
                 ret = GetTableMapped<T>(queryText);
+            }
+            return ret;
+        }
+
+        public static List<T> GetTableMapped<T>(SqlConnection conn, SqlCommand cmd)
+        {
+            List<T> ret;
+            if (conn != null)
+            {
+                var table = GetTable(conn, cmd);
+                ret = ConvertToList<T>(table);
+            }
+            else
+            {
+                ret = GetTableMapped<T>(cmd);
             }
             return ret;
         }
@@ -462,7 +596,17 @@ namespace CIAPI.DataManagers
 
         }
 
+        public static List<T> GetTableMapped<T>(SqlCommand cmd)
+        {
 
+            var conn = GetDefaultConnection();
+            var table = GetTableMapped<T>(conn, cmd);
+
+
+
+            return table;
+
+        }
 
 
 
@@ -511,9 +655,16 @@ namespace CIAPI.DataManagers
                         PropertyInfo pI = objT.GetType().GetProperty(pro.Name);
                         
 
-
-                        pro.SetValue(objT, row[pro.Name] == DBNull.Value ? null : Convert.ChangeType(row[pro.Name], pI.PropertyType));
-
+                       if(row[pro.Name] == null || row[pro.Name] == DBNull.Value)
+                       {
+                           pro.SetValue(objT, null);
+                       }
+                       else
+                       {
+                         Type underlyingType = Nullable.GetUnderlyingType(pI.PropertyType) ?? pI.PropertyType;
+                         object convertedValue = Convert.ChangeType(row[pro.Name], underlyingType);
+                         pro.SetValue(objT, convertedValue);
+                       }
 
 
 
