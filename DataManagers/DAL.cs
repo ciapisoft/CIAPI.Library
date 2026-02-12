@@ -18,23 +18,76 @@ namespace CIAPI.DataManagers
         private static SqlConnection cnnDefault { get; set; }
         public static string GetMainConnStr()
         {
-            String path;
-            if (File.Exists("appsettings.json"))
+            try
             {
-                path = "appsettings.json";
+                String path = "";
+                var currentDir = Directory.GetCurrentDirectory();
+                var baseDir = AppContext.BaseDirectory;
+
+                Console.WriteLine($"[DAL] CurrentDir: {currentDir}");
+                Console.WriteLine($"[DAL] BaseDir: {baseDir}");
+
+                // Intentar varias ubicaciones posibles
+                string[] possiblePaths = new[]
+                {
+                    Path.Combine(currentDir, "appsettings.json"),
+                    Path.Combine(currentDir, "appsettings.Development.json"),
+                    Path.Combine(currentDir, "appsettings.Production.json"),
+                    Path.Combine(baseDir, "appsettings.json"),
+                    Path.Combine(baseDir, "appsettings.Development.json"),
+                    Path.Combine(baseDir, "appsettings.Production.json"),
+                    "appsettings.json",
+                    "appsettings.Development.json",
+                    "appsettings.Production.json"
+                };
+
+                Console.WriteLine("[DAL] Buscando appsettings.json en:");
+                foreach (var testPath in possiblePaths)
+                {
+                    var exists = File.Exists(testPath);
+                    Console.WriteLine($"  - {testPath}: {(exists ? "ENCONTRADO" : "NO EXISTE")}");
+                    if (exists && string.IsNullOrEmpty(path))
+                    {
+                        path = testPath;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(path))
+                {
+                    var allFiles = Directory.GetFiles(currentDir, "*.json", SearchOption.AllDirectories);
+                    Console.WriteLine($"[DAL] Archivos JSON en el directorio:");
+                    foreach (var file in allFiles.Take(10))
+                    {
+                        Console.WriteLine($"  - {file}");
+                    }
+
+                    throw new FileNotFoundException($"No se encontró appsettings.json. CurrentDir: {currentDir}, BaseDir: {baseDir}");
+                }
+
+                Console.WriteLine($"[DAL] Usando archivo: {path}");
+
+                var builder = new ConfigurationBuilder()
+                    .SetBasePath(Path.GetDirectoryName(Path.GetFullPath(path)) ?? currentDir)
+                    .AddJsonFile(Path.GetFileName(path), optional: false, reloadOnChange: false);
+
+                var configuration = builder.Build();
+                var connectionString = configuration.GetConnectionString("MainContext");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    Console.WriteLine($"[DAL] ERROR: ConnectionString 'MainContext' no encontrado en {path}");
+                    throw new InvalidOperationException($"ConnectionString 'MainContext' no encontrado en {path}");
+                }
+
+                Console.WriteLine($"[DAL] ConnectionString obtenido exitosamente (longitud: {connectionString.Length})");
+                return connectionString;
             }
-            else
+            catch (Exception ex)
             {
-                path = "wwwroot/appsettings.json";
+                Console.WriteLine($"[DAL] ERROR CRÍTICO: {ex.Message}");
+                Console.WriteLine($"[DAL] StackTrace: {ex.StackTrace}");
+                throw new InvalidOperationException($"Error al obtener ConnectionString: {ex.Message}", ex);
             }
-
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile(path);
-
-            var configuration = builder.Build();
-            var connectionString = configuration.GetConnectionString("MainContext");
-            return connectionString;
         }
         public static SqlConnection GetDefaultConnection(string connStr = "")
         {
