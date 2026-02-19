@@ -114,27 +114,92 @@ namespace CIAPI.DataManagers
         }
         public static SqlConnection GetConnection(string connStr = "")
         {
-
             connStr = connStr == "" ? GetMainConnStr() : connStr;
 
+            // Agregar Connect Timeout extendido si no está especificado
+            if (!connStr.Contains("Connect Timeout", StringComparison.OrdinalIgnoreCase) &&
+                !connStr.Contains("Connection Timeout", StringComparison.OrdinalIgnoreCase))
+            {
+                connStr = connStr.TrimEnd(';') + ";Connect Timeout=60;";
+            }
+
+            const int maxReintentos = 3;
+            int[] demorасSegundos = { 2, 5, 10 }; // backoff exponencial
 
             SqlConnection connection = null;
+            Exception ultimaExcepcion = null;
 
-            connection = new SqlConnection(connStr);
-
-            try
+            for (int intento = 0; intento < maxReintentos; intento++)
             {
-                connection.Open();
+                try
+                {
+                    connection = new SqlConnection(connStr);
+                    connection.Open();
+
+                    if (intento > 0)
+                        Console.WriteLine($"[DAL] Conexión exitosa en intento {intento + 1}");
+
+                    return connection;
+                }
+                catch (SqlException sqlEx) when (EsErrorTransitorio(sqlEx))
+                {
+                    ultimaExcepcion = sqlEx;
+                    Console.WriteLine($"[DAL] Error transitorio en intento {intento + 1}/{maxReintentos}: {sqlEx.Number} - {sqlEx.Message}");
+
+                    connection?.Dispose();
+                    connection = null;
+
+                    if (intento < maxReintentos - 1)
+                    {
+                        Console.WriteLine($"[DAL] Reintentando en {demorасSegundos[intento]} segundos...");
+                        System.Threading.Thread.Sleep(demorасSegundos[intento] * 1000);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    connection?.Dispose();
+                    Console.WriteLine($"[DAL] Error no transitorio: {ex.Message}");
+                    throw;
+                }
             }
-            catch (Exception ex)
-            {
 
-                Console.Write(ex.ToString());
-                throw;
-            }
+            Console.WriteLine($"[DAL] Agotados {maxReintentos} intentos de conexión.");
+            throw new InvalidOperationException(
+                $"No se pudo conectar a la base de datos luego de {maxReintentos} intentos. " +
+                "La base de datos puede estar iniciando tras un período de inactividad. Por favor, intente nuevamente.",
+                ultimaExcepcion);
+        }
 
-            return connection;
+        /// <summary>
+        /// Determina si un SqlException es transitorio (timeout, conexión cerrada, Azure pausado)
+        /// </summary>
+        private static bool EsErrorTransitorio(SqlException ex)
+        {
+            // Códigos de error transitorios de Azure SQL y SQL Server
+            int[] errorTransitorios = {
+                -2,     // Timeout de conexión
+                2,      // No se encontró el servidor
+                53,     // Error de red
+                121,    // El semáforo agotó el tiempo de espera
+                233,    // Conexión cerrada por el servidor
+                258,    // Timeout de espera
+                1205,   // Deadlock
+                10053,  // Conexión anulada por software
+                10054,  // Restablecimiento de conexión
+                10060,  // Tiempo de espera de conexión agotado
+                40143,  // Conexión no puede procesar la solicitud (Azure)
+                40197,  // Error en el procesamiento de la solicitud (Azure)
+                40501,  // Servicio ocupado (Azure throttling)
+                40613,  // Base de datos no disponible (Azure)
+                49918,  // No se puede procesar (Azure)
+                49919,  // No se puede crear/actualizar (Azure)
+                49920,  // Demasiadas operaciones (Azure)
+            };
 
+            return errorTransitorios.Contains(ex.Number) ||
+                   ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) ||
+                   ex.Message.Contains("tiempo de espera", StringComparison.OrdinalIgnoreCase) ||
+                   ex.Message.Contains("previa al inicio de sesión", StringComparison.OrdinalIgnoreCase);
         }
         public static void CloseDefaultConnection()
         {
