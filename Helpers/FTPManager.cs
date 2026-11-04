@@ -1,9 +1,9 @@
-﻿using System;
+﻿using FluentFTP;
+using Renci.SshNet;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FluentFTP;
-using Renci.SshNet;
 
 namespace CIAPI.Library.Helpers
 {
@@ -153,6 +153,16 @@ namespace CIAPI.Library.Helpers
             {
                 return (null, null);
             }
+        }
+
+        public bool FileExists(string remoteFileName)
+        {
+            Connect();
+            var remoteUri = CombinePath(_currentDirectory, remoteFileName);
+            if (_mode == FtpMode.FTP || _mode == FtpMode.FTPS)
+                return _ftpClient.FileExists(remoteUri);
+            else
+                return _sftpClient.Exists(remoteUri);
         }
 
         public void DownloadFile(string remoteFileName, string localPath)

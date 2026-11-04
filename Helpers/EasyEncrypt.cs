@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CIAPI.Helpers
 {
@@ -81,7 +77,7 @@ namespace CIAPI.Helpers
             byte[] decryptedData = ms.ToArray();
             return decryptedData;
         }
-        public static  string Decrypt(string Data, string Password, int Bits)
+        public static string Decrypt(string Data, string Password, int Bits)
         {
             try
             {
@@ -107,7 +103,7 @@ namespace CIAPI.Helpers
                     return String.Concat(Bits);
                 }
             }
-            catch 
+            catch
             {
                 return String.Concat(Bits);
             }
@@ -115,7 +111,7 @@ namespace CIAPI.Helpers
 
         // This size of the IV (in bytes) must = (keysize / 8).  Default keysize is 256, so the IV must be
         // 32 bytes long.  Using a 16 character string here gives us 32 bytes when converted to a byte array.
-       // private const string initVector = "az123cva321atfa4";
+        // private const string initVector = "az123cva321atfa4";
         // This constant is used to determine the keysize of the encryption algorithm.
         private const int keysize = 256;
         private const string passPraseDef = "AZ987Sec789";

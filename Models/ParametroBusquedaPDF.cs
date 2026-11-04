@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace CIAPI.Models
 {
@@ -26,10 +23,10 @@ namespace CIAPI.Models
         //---------------------
         public List<string> RegExs { get; set; }
 
-        public int DesdeLongFija {get;set;}
+        public int DesdeLongFija { get; set; }
         public int HastaLongFija { get; set; }
 
         public TipoDatoConocido Tipo { get; set; }
     }
-    public enum TipoDatoConocido { Libre=0, Numero=1, Fecha=2, Importe=3, ImporteCon2Decimales=4, CUITL=5}
+    public enum TipoDatoConocido { Libre = 0, Numero = 1, Fecha = 2, Importe = 3, ImporteCon2Decimales = 4, CUITL = 5 }
 }

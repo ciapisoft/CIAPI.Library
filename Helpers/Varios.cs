@@ -1,19 +1,16 @@
-﻿using System;
+﻿using CIAPI.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using CIAPI.Models;
-using Org.BouncyCastle.Ocsp;
-using UglyToad.PdfPig.Content;
 
 namespace CIAPI.Helpers
 {
     public class PeriodoStruct
     {
-        
+
         public int Anio { get; set; }
         public int Mes { get; set; }
 
@@ -33,10 +30,10 @@ namespace CIAPI.Helpers
                 }
                 else
                     if (Varios.ValidPeriodo(value))
-                {
-                    Anio = int.Parse(value.Substring(0, 4));
-                    Mes = int.Parse(value.Substring(5, 2));
-                }
+                    {
+                        Anio = int.Parse(value.Substring(0, 4));
+                        Mes = int.Parse(value.Substring(5, 2));
+                    }
 
             }
         }
@@ -126,7 +123,7 @@ namespace CIAPI.Helpers
             return ret;
 
         }
-        public static string PeriodoActual(int sumaMeses=0)
+        public static string PeriodoActual(int sumaMeses = 0)
         {
             var fecha = DateTime.Now.AddMonths(sumaMeses);
 
@@ -146,9 +143,9 @@ namespace CIAPI.Helpers
         /// <summary>
         /// Obtiene la eddad en años
         /// </summary>
-        public static int Edad(DateTime fechaNacimiento,DateTime? fechaHoy = null)
+        public static int Edad(DateTime fechaNacimiento, DateTime? fechaHoy = null)
         {
-            var fechaHoyConf = fechaHoy==null ? DateTime.Now : fechaHoy.GetValueOrDefault();
+            var fechaHoyConf = fechaHoy == null ? DateTime.Now : fechaHoy.GetValueOrDefault();
 
             int edad = fechaHoyConf.Year - fechaNacimiento.Year;
 
@@ -165,9 +162,9 @@ namespace CIAPI.Helpers
                 return fechahora.ToString("H:mm");
             else
                 if (fechahora.Date.Year == DateTime.Now.Date.Year)
-                return fechahora.ToString("dd/MM");
-            else
-                return fechahora.ToString("MM/yy");
+                    return fechahora.ToString("dd/MM");
+                else
+                    return fechahora.ToString("MM/yy");
 
         }
         public static string SumaPeriodo(string periodo, int meses = 1)
@@ -198,41 +195,41 @@ namespace CIAPI.Helpers
         {
             int ret = 0;
             var periodo = periodoInicial;
-            if(Varios.ValidPeriodo(periodoInicial) && Varios.ValidPeriodo(periodoFinal))
-            { 
-                while(periodo.CompareTo(periodoFinal)<0)
+            if (Varios.ValidPeriodo(periodoInicial) && Varios.ValidPeriodo(periodoFinal))
+            {
+                while (periodo.CompareTo(periodoFinal) < 0)
                 {
                     periodo = SumaPeriodo(periodo);
                     ret++;
                 }
             }
             else
-            { 
+            {
                 ret = -1;
             }
             return ret;
         }
         public static void ExtraerInfoPDF(List<string> vtexto, List<ParametroBusquedaPDF> parambusq)
         {
-            for(var i=0;i<vtexto.Count; i++)
+            for (var i = 0; i < vtexto.Count; i++)
             {
-                foreach(var param in parambusq)
+                foreach (var param in parambusq)
                 {
 
 
                     //Revisamos titulos
                     var tituloEncontrado = false;
-                    if(param.PalabrasClavesTitulo!=null)
-                    { 
+                    if (param.PalabrasClavesTitulo != null)
+                    {
                         foreach (var titulo in param.PalabrasClavesTitulo)
                         {
-                            if(param.UsarLikeParaTitulos)
+                            if (param.UsarLikeParaTitulos)
                             {
                                 tituloEncontrado = vtexto[i].ToLower().Contains(titulo.ToLower());
                             }
                             else
                             {
-                                tituloEncontrado = (titulo.ToLower()== vtexto[i].ToLower());
+                                tituloEncontrado = (titulo.ToLower() == vtexto[i].ToLower());
                             }
                             if (tituloEncontrado) //Analizamos lo que viene luego
                                 if (i + 1 < vtexto.Count)
@@ -251,7 +248,7 @@ namespace CIAPI.Helpers
                                         else
                                         {
                                             //Verificamos Fecha Partida
-                                            if(i+3<vtexto.Count && param.Tipo==TipoDatoConocido.Fecha)
+                                            if (i + 3 < vtexto.Count && param.Tipo == TipoDatoConocido.Fecha)
                                             {
 
                                                 textoresult = ValidarTipoDato(CerosIzq(vtexto[i + 1], 2) + "/" + CerosIzq(vtexto[i + 2], 2) + "/" + vtexto[i + 3], param.Tipo);
@@ -264,7 +261,7 @@ namespace CIAPI.Helpers
                                             }
                                         }
 
-                                        
+
 
                                     }
                                     else
@@ -284,7 +281,7 @@ namespace CIAPI.Helpers
                                 }
                         }
 
-    
+
                     }
                     //-------------------
 
@@ -295,16 +292,16 @@ namespace CIAPI.Helpers
                     //{
                     //    var a = 1;
                     //}
-                    if(param.PalabrasClavesValor!=null)
-                    { 
+                    if (param.PalabrasClavesValor != null)
+                    {
                         var cantpalabras = ContarMaxPalabras(param.PalabrasClavesValor);
                         var frase = "";
-                        for(var j=0;j<=cantpalabras; j++)
+                        for (var j = 0; j <= cantpalabras; j++)
                         {
-                            if(vtexto.Count>i+j)
-                            { 
+                            if (vtexto.Count > i + j)
+                            {
                                 frase += (frase == "" ? "" : " ") + vtexto[i + j];
-                                if (frase.ToLower() == "nota" || frase.ToLower()=="factura")
+                                if (frase.ToLower() == "nota" || frase.ToLower() == "factura")
                                     Debug.Write("aa");
                                 var pclaveOK = AnalisisPalabraClave(frase, param);
                             }
@@ -384,14 +381,14 @@ namespace CIAPI.Helpers
         private static int ContarMaxPalabras(List<string> listaPalabras)
         {
             var maxPalabras = 0;
-            if(listaPalabras!=null)
-            { 
-                foreach(var palabra in listaPalabras)
+            if (listaPalabras != null)
+            {
+                foreach (var palabra in listaPalabras)
                 {
                     var conteo = palabra.Count(f => f == ' ');
-                    if (conteo+1>maxPalabras)
+                    if (conteo + 1 > maxPalabras)
                     {
-                        maxPalabras = conteo+1;
+                        maxPalabras = conteo + 1;
                     }
                 }
             }
@@ -412,7 +409,7 @@ namespace CIAPI.Helpers
 
                     regExEncontrada = rgx.IsMatch(dato);
 
-                    if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || param.MantenerValorNro>param.ValorNro))
+                    if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || param.MantenerValorNro > param.ValorNro))
                     {
                         //if (param.Nombre == "PuntoVenta") Debugger.Break();
                         //if (vtexto[i] == "102.628,00") Debugger.Break();
@@ -423,7 +420,7 @@ namespace CIAPI.Helpers
                         }
                         if (regExEncontrada && (String.IsNullOrWhiteSpace(param.Valor) || param.MantenerValorNro > param.ValorNro))
                         {
-                            var textoresult = ValidarTipoDato(dato, param.Tipo); 
+                            var textoresult = ValidarTipoDato(dato, param.Tipo);
                             if (!String.IsNullOrEmpty(textoresult))
                             {
 
@@ -444,10 +441,10 @@ namespace CIAPI.Helpers
         }
 
 
-        private static bool AnalisisPalabraClave(string dato,ParametroBusquedaPDF param)
+        private static bool AnalisisPalabraClave(string dato, ParametroBusquedaPDF param)
         {
             var palabraClaveEncontrada = false;
-            var ret=false;
+            var ret = false;
             if (param.PalabrasClavesValor != null)
             {
                 foreach (var palabraClave in param.PalabrasClavesValor)
@@ -488,13 +485,13 @@ namespace CIAPI.Helpers
             var ret = "";
             switch (tipo)
             {
-                case TipoDatoConocido.CUITL :
+                case TipoDatoConocido.CUITL:
                     {
                         var okCuit = Helpers.CUITL.Verifica(dato);
                         if (okCuit)
                         {
                             if (dato.Length == 11)
-                                ret = dato.Substring(0,2) + "-" + dato.Substring(2, 8) + "-" + dato.Substring(10, 1);
+                                ret = dato.Substring(0, 2) + "-" + dato.Substring(2, 8) + "-" + dato.Substring(10, 1);
                             else
                                 ret = dato;
                         }
@@ -512,7 +509,7 @@ namespace CIAPI.Helpers
                             var p1 = auxFec.Substring(0, 2);
                             var p2 = auxFec.Substring(2, 2);
                             var p3 = auxFec.Substring(4, 4);
-                            int dia=0, mes, anio;
+                            int dia = 0, mes, anio;
                             if (int.TryParse(p1, out var p1n))
                             {
                                 if (p1n >= 1 && p1n <= 31)
@@ -531,7 +528,7 @@ namespace CIAPI.Helpers
                                         dia = p2n;
                                         mes = p1n;
 
-   
+
                                     }
                                     if (int.TryParse(p3, out var p3n))
                                     {
@@ -545,37 +542,37 @@ namespace CIAPI.Helpers
                                 }
                             }
                         }
-                        
+
                     }
                     break;
                 case TipoDatoConocido.Importe:
                     {
-                        if(Decimal.TryParse(dato, out var result))
-                         {
+                        if (Decimal.TryParse(dato, out var result))
+                        {
 
-                                ret = result.ToString();
-                            
-                         }
-                     }
+                            ret = result.ToString();
+
+                        }
+                    }
                     break;
                 case TipoDatoConocido.ImporteCon2Decimales:
                     {
-                        if(dato.Length>=4)
-                        { 
-                            var sepDec = dato.Substring(dato.Length - 3,1);
-                            if (sepDec=="." || sepDec=="," )
+                        if (dato.Length >= 4)
+                        {
+                            var sepDec = dato.Substring(dato.Length - 3, 1);
+                            if (sepDec == "." || sepDec == ",")
                             {
                                 var num = "";
-                                foreach(var c in dato)
+                                foreach (var c in dato)
                                 {
                                     if (!(c == '.' || c == ','))
-                                    { 
-                                
+                                    {
+
                                         num += c.ToString();
                                     }
                                 }
                                 num = num.Substring(0, num.Length - 2) + "," + num.Substring(num.Length - 2, 2);
-                                if(decimal.TryParse(num, out var result2))
+                                if (decimal.TryParse(num, out var result2))
                                 {
                                     ret = result2.ToString();
                                 }
@@ -584,8 +581,8 @@ namespace CIAPI.Helpers
                     }
                     break;
                 case TipoDatoConocido.Numero:
-                
-                   if(long.TryParse(dato, out var result3))
+
+                    if (long.TryParse(dato, out var result3))
                     {
                         ret = dato;
                     }
@@ -607,16 +604,16 @@ namespace CIAPI.Helpers
                 ret = "0" + ret;
             }
             return ret;
-        } 
-        public static string Espacios(string valor, int largoTotal) 
-        { 
-            var falta = largoTotal - valor.Length; 
-            var ret = valor; 
-            for (int i = 1; i <= falta; i++) 
-            { 
+        }
+        public static string Espacios(string valor, int largoTotal)
+        {
+            var falta = largoTotal - valor.Length;
+            var ret = valor;
+            for (int i = 1; i <= falta; i++)
+            {
                 ret = ret + " ";
-                
-            } 
+
+            }
             return ret;
         }
         /// <summary>
@@ -637,12 +634,12 @@ namespace CIAPI.Helpers
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        public static string OfuscString(string text, int paso=3)
+        public static string OfuscString(string text, int paso = 3)
         {
             var ret = "";
-            foreach(var c in text)
+            foreach (var c in text)
             {
-                ret += RandomString(paso)+c;
+                ret += RandomString(paso) + c;
             }
             ret += RandomString(paso);
             return ret;
@@ -654,7 +651,7 @@ namespace CIAPI.Helpers
             foreach (var c in text)
             {
                 i++;
-                if ((i % (paso+1))==0)
+                if ((i % (paso + 1)) == 0)
                 {
                     ret += c;
                 }
@@ -662,7 +659,7 @@ namespace CIAPI.Helpers
             return ret;
         }
         private static readonly Random _random = new Random();
-        
+
 
         // Generates a random number within a range.      
         public static int RandomNumber(int min, int max)
@@ -697,15 +694,15 @@ namespace CIAPI.Helpers
             if (CUITLSinGuiones.Length < 11)
             {
                 CUITLSinGuiones = Varios.CerosIzq(CUITLSinGuiones, 11);
-                
+
             }
             return $"{CUITLSinGuiones.Substring(0, 2)}-{CUITLSinGuiones.Substring(2, 8)}-{CUITLSinGuiones.Substring(10, 1)}";
         }
 
-        public static  char LetraSiguiente(char letterIn)
+        public static char LetraSiguiente(char letterIn)
         {
             char ret;
-            
+
             if (letterIn == 'z')
                 ret = 'a';
             else if (letterIn == 'Z')
@@ -747,7 +744,7 @@ namespace CIAPI.Helpers
         }
 
         public static string StrSanitize(string s)
-        {           
+        {
             return s.Replace("'", "''");
         }
 

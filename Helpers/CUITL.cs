@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace CIAPI.Helpers
+﻿namespace CIAPI.Helpers
 {
 
     public static class CUITL
@@ -11,11 +6,11 @@ namespace CIAPI.Helpers
         public static bool Verifica(string cCUIT)
         {
             string cAux;
-            int nResultado=0;
+            int nResultado = 0;
             int nFactor;
             int nValor;
             int i;
-            cCUIT= cCUIT.Trim();
+            cCUIT = cCUIT.Trim();
             if (cCUIT.Length == 13)
                 cAux = cCUIT.Substring(0, 2) + cCUIT.Substring(3, 8) + cCUIT.Substring(12, 1);
             else
@@ -24,29 +19,29 @@ namespace CIAPI.Helpers
 
             if (cAux.Length == 11 && int.Parse(cAux.Substring(0, 2)) >= 10)
             {
-                    nFactor = 2;
-                    for (i = 1; i <= 10; i++)
-                    {
+                nFactor = 2;
+                for (i = 1; i <= 10; i++)
+                {
 
                     nValor = int.Parse(cAux.Substring(10 - i, 1));
-                        nResultado = nResultado + nValor * nFactor;
-                        if (nFactor == 7)
-                            nFactor = 1;
-                        nFactor = nFactor + 1;
-                    }
-                    nResultado = nResultado % 11;
-                    nResultado = nResultado == 0 ? 0 : 11 - nResultado;
-                    
-                    return (cAux.Substring(10,1) == nResultado.ToString());
+                    nResultado = nResultado + nValor * nFactor;
+                    if (nFactor == 7)
+                        nFactor = 1;
+                    nFactor = nFactor + 1;
                 }
-                else
-                    return false;
+                nResultado = nResultado % 11;
+                nResultado = nResultado == 0 ? 0 : 11 - nResultado;
+
+                return (cAux.Substring(10, 1) == nResultado.ToString());
+            }
+            else
+                return false;
 
         }
 
         public static string Calcula(string cSexo, string cDocumento)
         {
-            int nResultado=0;
+            int nResultado = 0;
             int nResto;
             int nDigito;
             int i;
@@ -56,7 +51,7 @@ namespace CIAPI.Helpers
             //int nSuma;
             ///string cAux;
             cDocumento = cDocumento.PadLeft(8, '0'); // String.P(15, cDocumento) Varios.CerosIzq(Conversion.Val(cDocumento), 8);
-            
+
             switch (cSexo.ToUpper())
             {
                 case "F":
@@ -99,7 +94,7 @@ namespace CIAPI.Helpers
             for (i = 1; i <= 10; i++)
             {
                 nValor = int.Parse(cClave.Substring(11 - i, 1));
-                
+
                 nResultado = nResultado + nValor * nFactor;
                 if (nFactor == 7)
                     nFactor = 1;
@@ -107,12 +102,12 @@ namespace CIAPI.Helpers
             }
             nResto = nResultado % 11;
             if (nResto == 1)
-                return Calcula((cSexo == "S"? "SR": "MFR"), cDocumento);
+                return Calcula((cSexo == "S" ? "SR" : "MFR"), cDocumento);
             else
             {
                 nDigito = (nResto == 0 ? 0 : 11 - nResto);
                 return cClave.Substring(0, 2) + "-" + cClave.Substring(3, 8) + "-" + nDigito.ToString().Trim();
-                
+
             }
         }
     }

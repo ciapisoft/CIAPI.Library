@@ -1,27 +1,18 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UglyToad.PdfPig.Graphics.Operations.SpecialGraphicsState;
-using static System.Net.Mime.MediaTypeNames;
-
-namespace CIAPI.Helpers
+﻿namespace CIAPI.Helpers
 {
     public static class SecVB6
     {
         public static string Encriptar(string cadena)
         {
             cadena = cadena.Trim();
-            int longi= cadena.Length;
-            
+            int longi = cadena.Length;
+
             int pos = 0;
             var ret = "";
-            foreach(char c in cadena)
+            foreach (char c in cadena)
             {
                 pos++;
-                var auxcar = (int)c +longi+pos;
+                var auxcar = (int)c + longi + pos;
                 ret = (char)auxcar + ret;
 
             }
@@ -33,13 +24,13 @@ namespace CIAPI.Helpers
         public static string DesEncriptar(string cadena)
         {
             cadena = cadena.Trim();
-            int longi = cadena.Length;            
+            int longi = cadena.Length;
             int pos = 0;
             var ret = "";
             foreach (char c in cadena)
             {
                 pos++;
-                var auxcar = (int)c - (longi + (longi - pos)+1);
+                var auxcar = (int)c - (longi + (longi - pos) + 1);
                 ret = (char)auxcar + ret;
 
             }
@@ -47,12 +38,12 @@ namespace CIAPI.Helpers
 
 
 
-  //          cCadena = Trim(cCadena)
-  //nLong = Len(cCadena)
-  //For nPos = 1 To nLong
-  //  cCaracter = Chr(Asc(Mid(cCadena, nPos, 1)) - (nLong + (nLong - nPos) + 1))
-  //  DesEncriptar = cCaracter & DesEncriptar
-  //Next
+            //          cCadena = Trim(cCadena)
+            //nLong = Len(cCadena)
+            //For nPos = 1 To nLong
+            //  cCaracter = Chr(Asc(Mid(cCadena, nPos, 1)) - (nLong + (nLong - nPos) + 1))
+            //  DesEncriptar = cCaracter & DesEncriptar
+            //Next
         }
 
 

@@ -1,16 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration.Json;
 namespace CIAPI.Helpers
 {
     public static class MySettingsBase
     {
- 
+
         public static string EMPRESA_NOMBRE
         {
             get
@@ -46,7 +41,7 @@ namespace CIAPI.Helpers
         {
             get
             {
-                return Conf.GetSection("MySettings").GetValue<string>("URL_BASE_SERVICIOS").Replace("api/","");
+                return Conf.GetSection("MySettings").GetValue<string>("URL_BASE_SERVICIOS").Replace("api/", "");
             }
         }
 
@@ -113,6 +108,13 @@ namespace CIAPI.Helpers
                 return Conf.GetSection("MySettings").GetValue<int>("PUERTO_SMTP");
             }
         }
+        public static string ZEPTO_API_KEY
+        {
+            get
+            {
+                return Conf.GetSection("MySettings").GetValue<string>("ZEPTO_API_KEY") ?? "";
+            }
+        }
 
         //public static int IDEMPRESA_WSAFIP
         //{
@@ -122,9 +124,9 @@ namespace CIAPI.Helpers
         //    }
         //}
 
-    
 
- 
+
+
 
         //public static string URL_WSAFIP
         //{
@@ -181,7 +183,7 @@ namespace CIAPI.Helpers
                 }
 
 #if (DEBUG)
-                var filePath = Path.Combine(AppContext.BaseDirectory, path+"appSettings.Development.json");
+                var filePath = Path.Combine(AppContext.BaseDirectory, path + "appSettings.Development.json");
 #else
                     var filePath = Path.Combine(AppContext.BaseDirectory,  path+"appSettings.Staging.json");
 #endif
@@ -204,7 +206,7 @@ namespace CIAPI.Helpers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error writing app settings "+ex.Message);
+                Console.WriteLine("Error writing app settings " + ex.Message);
             }
         }
 

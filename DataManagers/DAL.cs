@@ -1,15 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using CIAPI.ViewModels;
+﻿using CIAPI.ViewModels;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using System.Diagnostics;
 
 namespace CIAPI.DataManagers
 {
@@ -356,7 +353,7 @@ namespace CIAPI.DataManagers
 
             if (conn != null)
             {
-                SqlCommand command = new SqlCommand(queryText,  conn, transaction);
+                SqlCommand command = new SqlCommand(queryText, conn, transaction);
                 SqlDataAdapter adapter = new SqlDataAdapter();
                 var result = command.ExecuteScalar();
 
@@ -384,22 +381,23 @@ namespace CIAPI.DataManagers
             return GetScalar(conn, queryText);
         }
 
-        public static List<String> GetStringColumn(SqlConnection conn, string queryText){
-           // var conn = GetDefaultConnection();
+        public static List<String> GetStringColumn(SqlConnection conn, string queryText)
+        {
+            // var conn = GetDefaultConnection();
 
             List<String> columnData = new List<String>();
 
-                using(SqlCommand command = new SqlCommand(queryText, conn))
+            using (SqlCommand command = new SqlCommand(queryText, conn))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    using (SqlDataReader reader = command.ExecuteReader())
+                    while (reader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            columnData.Add(reader.GetString(0));
-                        }         
+                        columnData.Add(reader.GetString(0));
                     }
                 }
-                
+            }
+
             return columnData;
 
         }
@@ -468,7 +466,7 @@ namespace CIAPI.DataManagers
 
         #endregion
 
-        public static List<String> GetStringColumn(SqlConnection conn,SqlTransaction transaction, string queryText)
+        public static List<String> GetStringColumn(SqlConnection conn, SqlTransaction transaction, string queryText)
         {
             // var conn = GetDefaultConnection();
 
@@ -644,9 +642,9 @@ namespace CIAPI.DataManagers
         public static List<T> GetTableMapped<T>(SqlConnection conn, SqlTransaction transaction, string queryText)
         {
             List<T> ret;
-            if (conn != null && transaction!=null)
+            if (conn != null && transaction != null)
             {
-                
+
                 var table = GetTable(conn, transaction, queryText);
                 ret = ConvertToList<T>(table);
             }
@@ -728,6 +726,26 @@ namespace CIAPI.DataManagers
 
 
 
+        public static double GetDouble(SqlCommand cmd)
+        {
+            var result = cmd.ExecuteScalar();
+            return result != null && double.TryParse(result.ToString(), out double d) ? d : 0;
+        }
+
+        public static List<string> GetStringColumn(SqlCommand cmd)
+        {
+            var list = new List<string>();
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+                list.Add(reader.GetString(0));
+            return list;
+        }
+
+        public static int Execute(SqlCommand cmd)
+        {
+            return cmd.ExecuteNonQuery();
+        }
+
         public static Int32 Execute(string commandText, SqlConnection conn = null)
         {
 
@@ -771,18 +789,18 @@ namespace CIAPI.DataManagers
                     if (columnNames.Contains(pro.Name))
                     {
                         PropertyInfo pI = objT.GetType().GetProperty(pro.Name);
-                        
 
-                       if(row[pro.Name] == null || row[pro.Name] == DBNull.Value)
-                       {
-                           pro.SetValue(objT, null);
-                       }
-                       else
-                       {
-                         Type underlyingType = Nullable.GetUnderlyingType(pI.PropertyType) ?? pI.PropertyType;
-                         object convertedValue = Convert.ChangeType(row[pro.Name], underlyingType);
-                         pro.SetValue(objT, convertedValue);
-                       }
+
+                        if (row[pro.Name] == null || row[pro.Name] == DBNull.Value)
+                        {
+                            pro.SetValue(objT, null);
+                        }
+                        else
+                        {
+                            Type underlyingType = Nullable.GetUnderlyingType(pI.PropertyType) ?? pI.PropertyType;
+                            object convertedValue = Convert.ChangeType(row[pro.Name], underlyingType);
+                            pro.SetValue(objT, convertedValue);
+                        }
 
 
 

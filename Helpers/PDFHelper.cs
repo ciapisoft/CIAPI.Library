@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.AcroForms.Fields;
 using UglyToad.PdfPig.Content;
@@ -13,7 +12,6 @@ using UglyToad.PdfPig.DocumentLayoutAnalysis.ReadingOrderDetector;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.WordExtractor;
 using UglyToad.PdfPig.Writer;
-using UglyToad.PdfPig.XObjects;
 
 namespace CIAPI.Helpers
 {
@@ -75,16 +73,16 @@ namespace CIAPI.Helpers
         {
             var vtexto = new List<string>();
             using (var document = PdfDocument.Open(physicalPath))
+            {
+                foreach (var page in document.GetPages())
                 {
-                    foreach (var page in document.GetPages())
-                    {
-                        var text = ContentOrderTextExtractor.GetText(page, true);
-                        vtexto.Add(text);
-                        //Console.WriteLine(text);
-                    }
+                    var text = ContentOrderTextExtractor.GetText(page, true);
+                    vtexto.Add(text);
+                    //Console.WriteLine(text);
                 }
+            }
             return vtexto;
-            
+
 
         }
 
@@ -166,16 +164,16 @@ namespace CIAPI.Helpers
 
             return sb.ToString();
         }
-    
+
         public static string GetFormData(string physicalPath)
         {
             var sb = new StringBuilder();
-            
+
             using (var document = PdfDocument.Open(physicalPath))
             {
                 if (!document.TryGetForm(out var form))
                 {
-                    
+
                     return "";
                 }
 
@@ -204,7 +202,7 @@ namespace CIAPI.Helpers
                     sb.AppendLine();
                 }
                 return sb.ToString();
-                
+
             }
 
         }
